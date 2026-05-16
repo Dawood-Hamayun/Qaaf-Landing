@@ -57,12 +57,12 @@ export function Hero() {
 
       <FloatingGlyphs />
 
-      <div className="mx-auto w-full max-w-6xl px-6">
+      <div className="mx-auto w-full max-w-6xl px-5 sm:px-6">
         {/* Top copy */}
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
             {...fadeUp(0)}
-            className="font-serif text-[2.4rem] leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-[3.75rem]"
+            className="font-serif text-[2rem] leading-[1.06] tracking-tight text-ink sm:text-[2.6rem] md:text-5xl lg:text-[3.75rem]"
           >
             Understand the Quran{" "}
             <span className="italic text-amber">in its own language.</span>
@@ -70,7 +70,7 @@ export function Hero() {
 
           <motion.p
             {...fadeUp(1)}
-            className="mx-auto mt-6 max-w-xl text-balance text-base leading-relaxed text-ink-dim sm:text-lg"
+            className="mx-auto mt-5 max-w-xl text-balance text-[15px] leading-relaxed text-ink-dim sm:mt-6 sm:text-lg"
           >
             Qaaf teaches the{" "}
             <span className="text-ink">500 words</span> that make up roughly{" "}
@@ -80,7 +80,7 @@ export function Hero() {
 
           <motion.p
             {...fadeUp(2)}
-            className="mx-auto mt-4 max-w-lg text-balance text-sm italic leading-relaxed text-ink-mute sm:text-base"
+            className="mx-auto mt-3 max-w-lg text-balance text-[13px] italic leading-relaxed text-ink-mute sm:mt-4 sm:text-base"
           >
             Made for the Muslim who&apos;s recited these ayahs their whole life,
             and is ready to know what they mean.
@@ -88,7 +88,7 @@ export function Hero() {
 
           <motion.div
             {...fadeUp(3)}
-            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
+            className="mt-7 flex flex-row items-center justify-center gap-3 sm:mt-8 sm:gap-4"
           >
             <StoreBadge platform="ios" />
             <StoreBadge platform="android" />
@@ -97,15 +97,15 @@ export function Hero() {
           {/* Mono reassurance under CTAs — the low-commitment USP. */}
           <motion.p
             {...fadeUp(4)}
-            className="mx-auto mt-5 font-mono text-[11px] tracking-wide text-ink-mute"
+            className="mx-auto mt-5 font-mono text-[10px] tracking-wide text-ink-mute sm:text-[11px]"
           >
             No account required. Your first word is free, forever.
           </motion.p>
 
-          {/* Trust badges — small credibility row */}
+          {/* Trust badges — small credibility row, wraps cleanly on mobile */}
           <motion.div
             {...fadeUp(5)}
-            className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] uppercase tracking-[0.18em] text-ink-mute"
+            className="mx-auto mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[9px] uppercase tracking-[0.16em] text-ink-mute sm:mt-6 sm:gap-x-5 sm:text-[10px] sm:tracking-[0.18em]"
           >
             <TrustBadge icon={<ShieldIcon />}>Tanzil-verified text</TrustBadge>
             <span className="hidden h-1 w-1 rounded-full bg-ink-mute/40 sm:inline-block" />

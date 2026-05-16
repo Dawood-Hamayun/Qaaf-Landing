@@ -243,8 +243,8 @@ function WordsStage() {
       ref={stageRef}
       className="relative mx-auto mt-16 flex w-full max-w-6xl flex-col items-center px-6 sm:mt-20"
     >
-      {/* Giant 9,815 */}
-      <div className="relative flex h-[300px] w-full items-center justify-center sm:h-[360px] lg:h-[400px]">
+      {/* Giant 9,815 — smaller on mobile so it doesn't dominate */}
+      <div className="relative flex h-[220px] w-full items-center justify-center sm:h-[300px] lg:h-[400px]">
         <motion.div
           aria-hidden
           initial={{ opacity: 0, scale: 0.92 }}
@@ -254,24 +254,51 @@ function WordsStage() {
         >
           <span
             ref={numberRef}
-            className="font-serif text-[7rem] leading-none tracking-tight text-amber/[0.18] sm:text-[10rem] lg:text-[14rem] dark:text-amber/[0.18]"
+            className="font-serif text-[4.5rem] leading-none tracking-tight text-amber/[0.18] sm:text-[8rem] lg:text-[14rem] dark:text-amber/[0.18]"
             style={{ fontVariantNumeric: "tabular-nums" }}
           >
             0
           </span>
-          <span className="mt-3 text-[10px] uppercase tracking-[0.24em] text-ink-mute sm:text-xs">
+          <span className="mt-3 text-[9px] uppercase tracking-[0.22em] text-ink-mute sm:text-xs sm:tracking-[0.24em]">
             Word instances · from just five
           </span>
         </motion.div>
 
         <div
           aria-hidden
-          className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber/15 blur-3xl dark:bg-amber/20"
+          className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber/15 blur-3xl sm:h-[360px] sm:w-[360px] lg:h-[400px] lg:w-[400px] dark:bg-amber/20"
         />
       </div>
 
-      {/* Five cards fan out from center */}
-      <div className="mt-2 grid w-full grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5 lg:mt-6 lg:grid-cols-5">
+      {/* Cards — horizontal snap-scroll on mobile, grid on sm+ */}
+      {/* Mobile: scroll-snap row that breaks out of the section padding */}
+      <div className="-mx-6 mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 sm:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {WORDS.map((word, i) => (
+          <div
+            key={word.transliteration}
+            className="w-[72vw] max-w-[280px] shrink-0 snap-center"
+          >
+            <WordCard
+              word={word}
+              index={i}
+              total={WORDS.length}
+              inView={inView}
+              reduce={true}
+              isFlipped={autoFlippedIndex === i || hoveredIndex === i}
+              onHoverStart={() => setHoveredIndex(i)}
+              onHoverEnd={() => setHoveredIndex(-1)}
+            />
+          </div>
+        ))}
+      </div>
+      {/* Mobile-only swipe hint */}
+      <p className="mt-2 text-center text-[10px] uppercase tracking-[0.22em] text-ink-mute sm:hidden">
+        Swipe to explore
+        <span className="ml-2 text-amber">→</span>
+      </p>
+
+      {/* sm+ grid */}
+      <div className="mt-2 hidden w-full grid-cols-3 gap-5 sm:grid lg:mt-6 lg:grid-cols-5">
         {WORDS.map((word, i) => (
           <WordCard
             key={word.transliteration}
