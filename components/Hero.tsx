@@ -223,7 +223,7 @@ export function Hero() {
                   }
             }
             style={{ originX: 0.5, originY: 0.5 }}
-            className="absolute bottom-16 left-1/2 z-20 w-[58%] max-w-[240px] sm:bottom-2 sm:w-[36%] sm:max-w-[250px] lg:w-[28%]"
+            className="absolute bottom-4 left-1/2 z-20 w-[58%] max-w-[240px] sm:bottom-2 sm:w-[36%] sm:max-w-[250px] lg:w-[28%]"
           >
             <motion.div
               initial={{ y: 0 }}
