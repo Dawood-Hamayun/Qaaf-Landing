@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Candlelight theme tokens — light is warm cream, dark is deep ember */
+:root {
+  --bg: 242 233 216;        /* #f2e9d8 cream */
+  --bg-soft: 237 226 205;
+  --bg-card: 248 240 224;
+  --bg-lift: 252 246 233;
+  --ink: 32 26 19;          /* near-black warm */
+  --ink-dim: 91 85 71;
+  --ink-mute: 138 130 114;
+  --ink-deep: 20 17 13;
+  --amber: 188 138 60;      /* slightly deeper amber for light contrast */
+  --amber-soft: 217 166 90;
+  --amber-deep: 156 110 36;
+  --hairline: 32 26 19;     /* hairline uses ink with low alpha via utility */
+}
+
+.dark {
+  --bg: 20 17 13;           /* #14110d */
+  --bg-soft: 26 21 16;      /* #1a1510 */
+  --bg-card: 32 26 19;      /* #201a13 */
+  --bg-lift: 38 31 22;      /* #261f16 */
+  --ink: 242 233 216;       /* cream */
+  --ink-dim: 201 191 174;
+  --ink-mute: 138 130 114;
+  --ink-deep: 252 246 233;
+  --amber: 232 184 106;     /* #e8b86a */
+  --amber-soft: 217 166 90;
+  --amber-deep: 199 145 70;
+  --hairline: 232 184 106;
+}
+
+html, body {
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(var(--amber) / 0.35);
+  color: rgb(var(--ink));
+}
+
+/* Subtle grain for warmth */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+
+.hairline-b {
+  border-bottom: 1px solid rgb(var(--hairline) / 0.08);
+}
