@@ -9,7 +9,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -90,23 +90,33 @@ export function HowItWorks() {
       style={{ height: "300vh" }}
     >
       <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        {/* Header — pinned at top of the sticky viewport */}
-        <div className="mx-auto w-full max-w-6xl px-6 pt-20 sm:pt-24 lg:pt-28">
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <span className="text-xs uppercase tracking-[0.22em] text-amber">
+        {/* Header */}
+        <div className="mx-auto w-full max-w-6xl px-5 pt-16 sm:px-6 sm:pt-20 lg:pt-28">
+          <div className="flex items-center justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-[10px] uppercase tracking-[0.22em] text-amber sm:text-xs">
                 The practice
               </span>
-              <span className="block h-px w-12 bg-amber/30" />
+              <span className="block h-px w-8 bg-amber/30 sm:w-12" />
             </div>
             <StepIndicator active={active} count={SLIDES.length} />
           </div>
         </div>
 
-        {/* Slides — translateX driven by scrollYProgress */}
+        {/* Slides — single transform on the row. Per-slide transforms
+            only kick in on lg+ so mobile gets GPU-light scrubbing. */}
         <div className="flex flex-1 items-center">
           <motion.div
-            style={reduce ? undefined : { x }}
+            style={
+              reduce
+                ? undefined
+                : {
+                    x,
+                    // Hint the compositor so the translate runs on the
+                    // GPU even when motion values update fast.
+                    willChange: "transform",
+                  }
+            }
             className="flex h-full items-center"
           >
             {SLIDES.map((slide, i) => (
@@ -175,17 +185,12 @@ function Slide({
   reduce: boolean;
 }) {
   const { Visual } = slide;
-
-  // The point in scrollProgress at which THIS slide is dead-centered
-  // in the viewport. Slide 0 is centered at progress 0, slide 1 at 0.5,
-  // slide 2 at 1. (For 3 slides.)
   const center = total === 1 ? 0.5 : index / (total - 1);
-  const window = 0.5; // how far on either side this slide is "active"
+  const window = 0.5;
 
-  // Each slide fades/scales based on distance from its center. Kept
-  // intentionally subtle — neighbors stay readable so the section
-  // doesn't feel like flashbulbs when scrolling. Pop the focused
-  // card, gently soften the others.
+  // Per-slide fade/scale — only on lg+. Mobile gets none of these
+  // motion-value subscriptions, which is the big perf win: the entire
+  // mobile scroll path only updates ONE transform (the row's x).
   const opacity = useTransform(
     scrollProgress,
     [center - window, center, center + window],
@@ -203,12 +208,12 @@ function Slide({
   );
 
   return (
-    <div className="flex h-full w-screen flex-shrink-0 items-center">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:gap-20">
-        {/* Text */}
+    <div className="flex h-full w-screen shrink-0 items-center">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 px-5 sm:gap-12 sm:px-6 lg:grid-cols-2 lg:gap-20">
+        {/* Text — on mobile, no per-slide transforms */}
         <motion.div
           style={reduce ? undefined : { opacity, y }}
-          className="order-2 lg:order-1"
+          className="order-2 hidden lg:order-1 lg:block"
         >
           <p className="mb-4 font-serif text-base italic text-amber">
             Step {slide.index}
@@ -226,10 +231,24 @@ function Slide({
           </p>
         </motion.div>
 
-        {/* Visual */}
+        {/* Mobile text — plain divs, no motion values */}
+        <div className="order-2 text-center lg:hidden">
+          <p className="mb-3 font-serif text-sm italic text-amber">
+            Step {slide.index}
+            <span className="ml-2 text-ink-mute/60 not-italic">/ 03</span>
+          </p>
+          <h3 className="font-serif text-[1.8rem] leading-[1.1] tracking-tight text-ink sm:text-4xl">
+            {slide.title}
+          </h3>
+          <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-ink-dim sm:text-base">
+            {slide.body}
+          </p>
+        </div>
+
+        {/* Visual — on mobile, NO per-slide transforms. Just static. */}
         <motion.div
           style={reduce ? undefined : { opacity, scale }}
-          className="relative order-1 mx-auto flex h-[460px] w-full max-w-[440px] items-center justify-center lg:order-2 lg:h-[560px]"
+          className="relative order-1 mx-auto hidden h-[460px] w-full max-w-[440px] items-center justify-center lg:order-2 lg:flex lg:h-[560px]"
         >
           <div
             aria-hidden
@@ -237,6 +256,15 @@ function Slide({
           />
           <Visual />
         </motion.div>
+
+        {/* Mobile visual — no motion values, just the visual */}
+        <div className="relative order-1 mx-auto flex w-full max-w-[400px] items-center justify-center lg:hidden">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-2 -inset-y-4 -z-10 rounded-[2rem] bg-amber/15 blur-3xl dark:bg-amber/20"
+          />
+          <Visual />
+        </div>
       </div>
     </div>
   );

@@ -270,34 +270,18 @@ function WordsStage() {
         />
       </div>
 
-      {/* Cards — horizontal snap-scroll on mobile, grid on sm+ */}
-      {/* Mobile: scroll-snap row that breaks out of the section padding */}
-      <div className="-mx-6 mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 sm:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      {/* Mobile: single-face cards that show EVERYTHING at once —
+          the Arabic word AND the ayah it lives in. No flip, no
+          gesture, no waiting. The flip is a desktop affordance that
+          doesn't translate to touch — on mobile, showing both sides
+          on the same face is cleaner and more informative. */}
+      <div className="mt-6 flex w-full flex-col gap-4 sm:hidden">
         {WORDS.map((word, i) => (
-          <div
-            key={word.transliteration}
-            className="w-[72vw] max-w-[280px] shrink-0 snap-center"
-          >
-            <WordCard
-              word={word}
-              index={i}
-              total={WORDS.length}
-              inView={inView}
-              reduce={true}
-              isFlipped={autoFlippedIndex === i || hoveredIndex === i}
-              onHoverStart={() => setHoveredIndex(i)}
-              onHoverEnd={() => setHoveredIndex(-1)}
-            />
-          </div>
+          <MobileWordCard key={word.transliteration} word={word} index={i} />
         ))}
       </div>
-      {/* Mobile-only swipe hint */}
-      <p className="mt-2 text-center text-[10px] uppercase tracking-[0.22em] text-ink-mute sm:hidden">
-        Swipe to explore
-        <span className="ml-2 text-amber">→</span>
-      </p>
 
-      {/* sm+ grid */}
+      {/* sm+ grid — original card design with flip */}
       <div className="mt-2 hidden w-full grid-cols-3 gap-5 sm:grid lg:mt-6 lg:grid-cols-5">
         {WORDS.map((word, i) => (
           <WordCard
@@ -314,6 +298,77 @@ function WordsStage() {
         ))}
       </div>
     </div>
+  );
+}
+
+
+/* ---------- mobile-only single-face card ---------- */
+
+function MobileWordCard({ word, index }: { word: Word; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{
+        duration: 0.7,
+        ease: EASE,
+        delay: index * 0.05,
+      }}
+      className="overflow-hidden rounded-2xl border border-hairline/15 bg-bg-card shadow-phone dark:border-amber/15"
+    >
+      {/* Header strip: position + count */}
+      <div className="flex items-center justify-between border-b border-hairline/10 px-5 py-3 dark:border-amber/10">
+        <span className="text-[10px] uppercase tracking-[0.22em] text-ink-mute">
+          #{index + 1} of 05
+        </span>
+        <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-amber">
+          <span className="block h-1 w-1 rounded-full bg-amber" />
+          {word.count.toLocaleString()}× in the Quran
+        </span>
+      </div>
+
+      {/* Arabic word, centered. Fixed-height container so every card
+          gets the same vertical footprint regardless of how tall the
+          glyph + harakat stack is. leading-[1.4] reserves room for
+          the diacritics above the baseline. */}
+      <div className="flex flex-col items-center px-5 pb-7 pt-8">
+        <div className="flex h-24 items-center justify-center">
+          <span
+            dir="rtl"
+            className="font-arabic text-[3.25rem] leading-[1.4] text-ink"
+          >
+            {word.arabic}
+          </span>
+        </div>
+        <p className="mt-3 font-serif text-lg italic text-ink-dim">
+          {word.transliteration}
+        </p>
+        <p className="mt-1 text-sm text-ink-dim">{word.meaning}</p>
+      </div>
+
+      {/* Ayah preview — the "back of the card" lives here too */}
+      <div className="border-t border-amber/10 bg-amber/[0.03] px-5 py-5 dark:bg-amber/[0.06]">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="block h-px flex-1 bg-amber/20" />
+          <span className="text-[9px] uppercase tracking-[0.22em] text-amber">
+            {word.ayah.surah}
+          </span>
+          <span className="block h-px flex-1 bg-amber/20" />
+        </div>
+        <p
+          dir="rtl"
+          className="text-center font-arabic text-[1.05rem] leading-[2] text-ink-dim"
+        >
+          {word.ayah.arabicBefore}
+          <span className="text-amber">{word.ayah.arabicWord}</span>
+          {word.ayah.arabicAfter}
+        </p>
+        <p className="mt-2 text-center text-[12px] italic leading-relaxed text-ink-mute">
+          {word.ayah.english}
+        </p>
+      </div>
+    </motion.div>
   );
 }
 

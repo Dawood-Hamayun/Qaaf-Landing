@@ -54,24 +54,6 @@ export function Footer() {
             <FooterCredit label="Frequency analysis">
               Quranic Arabic Corpus, University of Leeds
             </FooterCredit>
-            <Link
-              href="#methodology"
-              className="mt-2 inline-flex items-center gap-1.5 text-sm text-amber transition hover:brightness-110"
-            >
-              Read our methodology
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M13 5l7 7-7 7" />
-              </svg>
-            </Link>
           </FooterCol>
 
           {/* Contact + downloads */}
@@ -87,7 +69,7 @@ export function Footer() {
         {/* Bottom strip */}
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-hairline/10 pt-8 sm:flex-row sm:items-center sm:gap-6 dark:border-amber/10">
           <p className="text-xs text-ink-mute">
-            © 2026 Qaaf. Made with care in Rawalpindi.
+            © 2026 Qaaf. Made with love.
           </p>
           <p className="text-[10px] uppercase tracking-[0.22em] text-ink-mute/80">
             <span className="font-arabic text-amber" dir="rtl">

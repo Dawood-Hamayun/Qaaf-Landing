@@ -75,7 +75,7 @@ export function Hero() {
             Qaaf teaches the{" "}
             <span className="text-ink">500 words</span> that make up roughly{" "}
             <span className="text-ink">80% of the Quran</span>. Five minutes a
-            day. Native audio, classical root analysis, real verses.
+            day.
           </motion.p>
 
           <motion.p
@@ -117,8 +117,10 @@ export function Hero() {
 
         {/* Phones — stacked, anchored at the row's horizontal center.
             Side phones start hidden behind the center phone and slide
-            outward just enough to peek out tilted. */}
-        <div className="relative mx-auto mt-10 h-[440px] max-w-5xl sm:mt-12 sm:h-[480px] lg:h-[520px]">
+            outward just enough to peek out tilted. Row height is set
+            so the center phone fits within it (no overflow into the
+            text above). */}
+        <div className="relative mx-auto mt-12 h-[500px] max-w-5xl sm:mt-12 sm:h-[480px] lg:h-[520px]">
           {/* Left card */}
           <motion.div
             initial={
@@ -221,7 +223,7 @@ export function Hero() {
                   }
             }
             style={{ originX: 0.5, originY: 0.5 }}
-            className="absolute bottom-2 left-1/2 z-20 w-[68%] max-w-[280px] sm:w-[36%] sm:max-w-[250px] lg:w-[28%]"
+            className="absolute bottom-16 left-1/2 z-20 w-[58%] max-w-[240px] sm:bottom-2 sm:w-[36%] sm:max-w-[250px] lg:w-[28%]"
           >
             <motion.div
               initial={{ y: 0 }}
