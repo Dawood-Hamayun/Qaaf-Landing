@@ -61,6 +61,17 @@ html, body {
   border-bottom: 1px solid rgb(var(--hairline) / 0.08);
 }
 
+/* Hide native scrollbar on horizontal snap carousels (mobile).
+   Used by HowItWorks mobile pager — Safari/Firefox/Chromium all
+   covered. The carousel still scrolls; only the visual track is hidden.  */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ---------- Beehiiv embed overrides ----------
    Beehiiv's loader.js v3 injects its own form HTML and renders inside
    our `.beehiiv-form-container` wrapper. We can't fully restyle the
