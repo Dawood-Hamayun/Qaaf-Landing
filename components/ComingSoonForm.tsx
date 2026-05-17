@@ -60,19 +60,7 @@ export function ComingSoonForm() {
       <div className="mt-6">
         <AnimatePresence mode="wait" initial={false}>
           {status === "success" ? (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5, ease: EASE }}
-              className="flex items-center justify-center gap-3 rounded-full border border-amber/40 bg-amber/[0.08] px-5 py-4 text-center text-sm text-amber shadow-[0_8px_30px_-12px_rgba(232,184,106,0.6)] dark:bg-amber/[0.12] sm:text-base"
-            >
-              <CheckCircle />
-              <span className="font-serif italic">
-                Thank you. We&apos;ll write when Qaaf is here.
-              </span>
-            </motion.div>
+            <SuccessState key="success" />
           ) : (
             <motion.form
               key="form"
@@ -102,6 +90,139 @@ export function ComingSoonForm() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+/* ---------- success state ---------- */
+
+function SuccessState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.92, y: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{
+        type: "spring",
+        stiffness: 220,
+        damping: 22,
+        mass: 0.9,
+      }}
+      className="relative flex flex-col items-center gap-4 rounded-3xl border border-amber/30 bg-amber/[0.04] px-6 py-8 text-center shadow-[0_20px_60px_-20px_rgba(232,184,106,0.45)] dark:bg-amber/[0.08]"
+    >
+      {/* Soft amber bloom that breathes behind the whole card */}
+      <motion.div
+        aria-hidden
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{
+          opacity: [0.4, 0.7, 0.4],
+          scale: [0.8, 1, 0.8],
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute inset-0 -z-10 rounded-3xl bg-amber/20 blur-2xl"
+      />
+
+      {/* Animated checkmark inside an amber circle */}
+      <SuccessMark />
+
+      {/* Arabic salam — appears with stagger */}
+      <motion.p
+        dir="rtl"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: EASE, delay: 0.65 }}
+        className="font-arabic text-[1.35rem] leading-tight text-amber"
+      >
+        ٱلسَّلَامُ عَلَيْكُمْ
+      </motion.p>
+
+      {/* JazakAllah khayr — main thank-you */}
+      <motion.p
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: EASE, delay: 0.8 }}
+        className="font-serif text-xl italic leading-tight text-ink sm:text-2xl"
+      >
+        JazakAllah khayr.
+      </motion.p>
+
+      {/* Sub-message */}
+      <motion.p
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: EASE, delay: 0.95 }}
+        className="text-sm leading-relaxed text-ink-dim sm:text-base"
+      >
+        We&apos;ll write when Qaaf opens.
+      </motion.p>
+    </motion.div>
+  );
+}
+
+function SuccessMark() {
+  return (
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{
+        type: "spring",
+        stiffness: 280,
+        damping: 18,
+        delay: 0.15,
+      }}
+      className="relative"
+    >
+      <svg
+        viewBox="0 0 80 80"
+        className="h-16 w-16"
+        fill="none"
+        aria-hidden
+      >
+        {/* Ring draws first */}
+        <motion.circle
+          cx="40"
+          cy="40"
+          r="36"
+          stroke="rgb(var(--amber))"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{
+            duration: 0.55,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 0.2,
+          }}
+          style={{
+            transformOrigin: "center",
+            transform: "rotate(-90deg)",
+          }}
+        />
+        {/* Then the checkmark */}
+        <motion.path
+          d="M26 41 L36 51 L55 30"
+          stroke="rgb(var(--amber))"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{
+            duration: 0.4,
+            ease: [0.22, 1, 0.36, 1],
+            delay: 0.55,
+          }}
+        />
+      </svg>
+      {/* Drop shadow under the mark */}
+      <span
+        aria-hidden
+        className="absolute inset-0 -z-10 rounded-full bg-amber/30 blur-xl"
+      />
+    </motion.div>
   );
 }
 
@@ -237,21 +358,3 @@ function ArrowRight() {
   );
 }
 
-function CheckCircle() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="m8 12.5 3 3 5-6" />
-    </svg>
-  );
-}
