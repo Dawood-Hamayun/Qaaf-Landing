@@ -60,3 +60,31 @@ html, body {
 .hairline-b {
   border-bottom: 1px solid rgb(var(--hairline) / 0.08);
 }
+
+/* ---------- Beehiiv embed overrides ----------
+   Beehiiv's loader.js v3 injects its own form HTML and renders inside
+   our `.beehiiv-form-container` wrapper. We can't fully restyle the
+   internals, but we can soften the surrounding chrome so the form
+   reads as part of the candlelight palette rather than a foreign
+   widget.
+
+   Selectors are intentionally broad — Beehiiv ships utility classes
+   that vary across builds. These rules target what they currently
+   inject; harmless if they update.
+*/
+.beehiiv-form-container {
+  /* Constrain to a sensible width within our wrapper. */
+  max-width: 100%;
+}
+.beehiiv-form-container iframe {
+  /* The embed renders inside an iframe with a transparent background;
+     ensure no white box bleeds into our dark/light surfaces. */
+  background: transparent !important;
+  color-scheme: light dark;
+  width: 100% !important;
+  max-width: 100%;
+}
+.beehiiv-form-container > div {
+  width: 100% !important;
+  max-width: 100% !important;
+}

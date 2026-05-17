@@ -1,9 +1,10 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { ComingSoonForm } from "./ComingSoonForm";
 import { FloatingGlyphs } from "./FloatingGlyphs";
 import { PhoneFrame } from "./PhoneFrame";
-import { StoreBadge } from "./StoreBadge";
+// import { StoreBadge } from "./StoreBadge"; // restored when stores go live
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -62,7 +63,7 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
             {...fadeUp(0)}
-            className="font-serif text-[2rem] leading-[1.06] tracking-tight text-ink sm:text-[2.6rem] md:text-5xl lg:text-[3.75rem]"
+            className="font-serif text-[1.85rem] leading-[1.08] tracking-tight text-ink sm:text-[2.6rem] md:text-5xl lg:text-[3.75rem]"
           >
             Understand the Quran{" "}
             <span className="italic text-amber">in its own language.</span>
@@ -70,7 +71,7 @@ export function Hero() {
 
           <motion.p
             {...fadeUp(1)}
-            className="mx-auto mt-5 max-w-xl text-balance text-[15px] leading-relaxed text-ink-dim sm:mt-6 sm:text-lg"
+            className="mx-auto mt-4 max-w-xl text-balance text-[14px] leading-relaxed text-ink-dim sm:mt-6 sm:text-lg"
           >
             Qaaf teaches the{" "}
             <span className="text-ink">500 words</span> that make up roughly{" "}
@@ -78,14 +79,19 @@ export function Hero() {
             day.
           </motion.p>
 
+          {/* Italic personal note — hidden on mobile to reduce clutter. */}
           <motion.p
             {...fadeUp(2)}
-            className="mx-auto mt-3 max-w-lg text-balance text-[13px] italic leading-relaxed text-ink-mute sm:mt-4 sm:text-base"
+            className="mx-auto mt-4 hidden max-w-lg text-balance text-base italic leading-relaxed text-ink-mute sm:block"
           >
             Made for the Muslim who&apos;s recited these ayahs their whole life,
             and is ready to know what they mean.
           </motion.p>
 
+          {/* Store badges hidden until launch. Restore when the apps
+              go live by uncommenting the block below and removing the
+              ComingSoonForm. */}
+          {/*
           <motion.div
             {...fadeUp(3)}
             className="mt-7 flex flex-row items-center justify-center gap-3 sm:mt-8 sm:gap-4"
@@ -93,25 +99,28 @@ export function Hero() {
             <StoreBadge platform="ios" />
             <StoreBadge platform="android" />
           </motion.div>
-
-          {/* Mono reassurance under CTAs — the low-commitment USP. */}
           <motion.p
             {...fadeUp(4)}
             className="mx-auto mt-5 font-mono text-[10px] tracking-wide text-ink-mute sm:text-[11px]"
           >
             No account required. Your first word is free, forever.
           </motion.p>
+          */}
 
-          {/* Trust badges — small credibility row, wraps cleanly on mobile */}
+          <motion.div {...fadeUp(3)} className="mt-6 sm:mt-10">
+            <ComingSoonForm />
+          </motion.div>
+
+          {/* Trust badges — credibility row. Compact on mobile. */}
           <motion.div
             {...fadeUp(5)}
-            className="mx-auto mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[9px] uppercase tracking-[0.16em] text-ink-mute sm:mt-6 sm:gap-x-5 sm:text-[10px] sm:tracking-[0.18em]"
+            className="mx-auto mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[9px] uppercase tracking-[0.14em] text-ink-mute sm:mt-6 sm:gap-x-5 sm:text-[10px] sm:tracking-[0.18em]"
           >
-            <TrustBadge icon={<ShieldIcon />}>Tanzil-verified text</TrustBadge>
+            <TrustBadge icon={<ShieldIcon />}>Tanzil-verified</TrustBadge>
             <span className="hidden h-1 w-1 rounded-full bg-ink-mute/40 sm:inline-block" />
-            <TrustBadge icon={<EyeOffIcon />}>No tracking, ever</TrustBadge>
+            <TrustBadge icon={<EyeOffIcon />}>No tracking</TrustBadge>
             <span className="hidden h-1 w-1 rounded-full bg-ink-mute/40 sm:inline-block" />
-            <TrustBadge icon={<KeyIcon />}>No account needed</TrustBadge>
+            <TrustBadge icon={<KeyIcon />}>No account</TrustBadge>
           </motion.div>
         </div>
 

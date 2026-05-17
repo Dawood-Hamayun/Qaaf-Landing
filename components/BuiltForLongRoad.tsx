@@ -34,8 +34,8 @@ const TILES: Tile[] = [
     Icon: OfflineIcon,
   },
   {
-    title: "No streaks",
-    subtitle: "Practice when you can. Progress is always there.",
+    title: "Gentle streaks",
+    subtitle: "Skip a day. Your streak waits, it doesn't reset.",
     Icon: NoStreaksIcon,
   },
   {
@@ -49,7 +49,7 @@ const TILES: Tile[] = [
     Icon: AyahIcon,
   },
   {
-    title: "No account, no email",
+    title: "No account needed",
     subtitle: "Open the app. Begin. That's it.",
     Icon: OpenDoorIcon,
   },

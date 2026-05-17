@@ -1,7 +1,8 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { StoreBadge } from "./StoreBadge";
+import { ComingSoonForm } from "./ComingSoonForm";
+// import { StoreBadge } from "./StoreBadge"; // restored when stores go live
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -68,11 +69,12 @@ export function FinalCTA() {
           <span className="italic text-amber">are waiting.</span>
         </motion.h2>
 
+        {/* Store badges hidden until launch. Restore when the apps
+            go live by uncommenting and removing the ComingSoonForm. */}
+        {/*
         <motion.div
           initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16 }}
-          whileInView={
-            reduce ? { opacity: 1 } : { opacity: 1, y: 0 }
-          }
+          whileInView={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.8, ease: EASE, delay: 0.25 }}
           className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
@@ -80,18 +82,26 @@ export function FinalCTA() {
           <StoreBadge platform="ios" />
           <StoreBadge platform="android" />
         </motion.div>
-
         <motion.p
           initial={reduce ? { opacity: 0 } : { opacity: 0, y: 12 }}
-          whileInView={
-            reduce ? { opacity: 1 } : { opacity: 1, y: 0 }
-          }
+          whileInView={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.45 }}
           className="mx-auto mt-6 font-mono text-[11px] tracking-wide text-ink-mute"
         >
           No account. Your first word is free.
         </motion.p>
+        */}
+
+        <motion.div
+          initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16 }}
+          whileInView={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-15%" }}
+          transition={{ duration: 0.8, ease: EASE, delay: 0.25 }}
+          className="mt-10"
+        >
+          <ComingSoonForm />
+        </motion.div>
       </div>
     </section>
   );

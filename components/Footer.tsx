@@ -56,12 +56,28 @@ export function Footer() {
             </FooterCredit>
           </FooterCol>
 
-          {/* Contact + downloads */}
+          {/* Contact + (downloads hidden until launch) */}
           <FooterCol title="Contact" className="lg:col-span-3">
             <FooterLink href="mailto:hello@qaaf.app">hello@qaaf.app</FooterLink>
+            {/* Store badges hidden until launch. Restore by
+                uncommenting the block below. */}
+            {/*
             <div className="mt-5 flex flex-col gap-2.5">
               <AppStoreBadge platform="ios" />
               <AppStoreBadge platform="android" />
+            </div>
+            */}
+            <div className="mt-5 flex flex-col gap-1">
+              <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-amber">
+                <span className="relative flex h-2 w-2 items-center justify-center">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-amber/50" />
+                  <span className="relative h-1.5 w-1.5 rounded-full bg-amber" />
+                </span>
+                Coming soon
+              </span>
+              <span className="text-xs text-ink-dim">
+                iOS &amp; Android
+              </span>
             </div>
           </FooterCol>
         </div>
