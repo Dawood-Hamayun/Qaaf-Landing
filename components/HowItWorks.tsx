@@ -1,40 +1,70 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
  * Section 03 — How it works.
  *
- * Why a vertical chapter layout (not horizontal scroll or carousel):
- *   · People skim landing pages by flicking their thumb. Anything that
- *     demands a different gesture (horizontal scroll, swipe carousel,
- *     scroll-pinned section) gets skipped or skimmed past without
- *     registering.
- *   · The wow should ride on the user's existing scroll motion, not
- *     ask them to discover a new interaction.
- *   · Vertical reveals stay buttery on every device because there is
- *     no scroll subscription anywhere in this component. Every
- *     animation is a single-fire `whileInView` on a compositor-only
- *     transform (translate / scale / opacity). Old iPhones handle
- *     this without a dropped frame.
+ * Two layouts, picked at runtime after hydration:
  *
- * What gives it the wow:
- *   · Each step is a full-bleed chapter with a giant ghost step
- *     number sitting behind the content like a printed page number,
- *     fading in as the chapter enters.
- *   · The visual enters from the side with a subtle 3D tilt that
- *     resolves to flat. Reads like a card being laid down on a table.
- *   · The chapter title rises into place, then an amber accent line
- *     draws horizontally beneath it like a calligrapher's stroke.
- *   · The body text settles last, with a soft delay.
- *   · Alternating left/right on desktop gives visual rhythm. On
- *     mobile, everything stacks centered.
- *   · A delicate vertical hairline at the far-left of the desktop
- *     layout connects the three chapters as one continuous journey.
+ *   MobileHowItWorks (default + below lg)
+ *     · Vertical "chapter" stack. Each step is a self-contained
+ *       chapter with a giant ghost step number, cinematic entrance,
+ *       and an amber stroke that draws beneath the title.
+ *     · No scroll subscriptions, no sticky, no horizontal scroll.
+ *       Every animation is a single-fire `whileInView` on a
+ *       compositor-only transform. Silky on iPhone and old hardware.
+ *     · Rides on the user's existing scroll motion. People who skim
+ *       still see the reveal because it happens naturally as the
+ *       section passes through the viewport.
+ *
+ *   DesktopHowItWorks (lg+ post-hydration)
+ *     · Scroll-pinned 300vh section with horizontal slide.
+ *     · A "Keep scrolling ↓" cue at the bottom-center of the pinned
+ *       viewport tells the user that vertical scroll drives the
+ *       horizontal motion. The cue fades as you approach the last slide.
+ *     · Desktop input devices (mouse wheel, trackpad) handle this
+ *       pattern gracefully, and the wow of horizontal motion is part
+ *       of the section's identity.
+ *
+ * Why two components instead of CSS-only swap: `display: none` does
+ * not unmount the React tree, so `useScroll` would still subscribe to
+ * scroll events on phones. The conditional render unmounts the desktop
+ * tree entirely on mobile so phones pay zero cost for the pinned
+ * layout they will never see.
  */
+
+export function HowItWorks() {
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // SSR + pre-hydration paints mobile so phones never even briefly
+  // mount the scroll-pin tree.
+  if (!mounted || !isDesktop) return <MobileHowItWorks />;
+  return <DesktopHowItWorks />;
+}
+
+/* ---------- shared data ---------- */
 
 type Slide = {
   index: string;
@@ -64,14 +94,13 @@ const SLIDES: Slide[] = [
   },
 ];
 
-export function HowItWorks() {
+/* ---------- mobile: vertical chapters ---------- */
+
+function MobileHowItWorks() {
   return (
-    <section
-      id="how"
-      className="relative overflow-hidden py-24 sm:py-32 lg:py-40"
-    >
+    <section id="how" className="relative overflow-hidden py-24 sm:py-32">
       {/* Section kicker + title */}
-      <header className="mx-auto mb-20 max-w-3xl px-5 text-center sm:mb-24 sm:px-6 lg:mb-32">
+      <header className="mx-auto mb-20 max-w-3xl px-5 text-center sm:mb-24 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -88,21 +117,16 @@ export function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
-          className="font-serif text-[2.1rem] leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl"
+          className="font-serif text-[2.1rem] leading-[1.05] tracking-tight text-ink sm:text-5xl"
         >
           Three small steps.{" "}
           <span className="italic text-amber">That&apos;s it.</span>
         </motion.h2>
       </header>
 
-      {/* Chapter stack. A delicate amber hairline runs through the left
-          gutter on lg+ to tie the chapters together as one journey. */}
-      <div className="relative mx-auto max-w-6xl px-5 sm:px-6">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute bottom-12 left-6 top-12 hidden w-px bg-gradient-to-b from-transparent via-amber/25 to-transparent lg:block"
-        />
-        <div className="flex flex-col gap-28 sm:gap-36 lg:gap-44">
+      {/* Chapter stack */}
+      <div className="relative mx-auto max-w-3xl px-5 sm:px-6">
+        <div className="flex flex-col gap-28 sm:gap-36">
           {SLIDES.map((slide, i) => (
             <StepChapter key={slide.index} slide={slide} index={i} />
           ))}
@@ -112,8 +136,6 @@ export function HowItWorks() {
   );
 }
 
-/* ---------- one chapter ---------- */
-
 function StepChapter({ slide, index }: { slide: Slide; index: number }) {
   const reduce = useReducedMotion();
   const isEven = index % 2 === 0;
@@ -121,124 +143,314 @@ function StepChapter({ slide, index }: { slide: Slide; index: number }) {
 
   return (
     <article className="relative">
-      {/* Giant ghost step number sitting behind the content like a
-          printed page number. Different corner per chapter so the page
-          feels composed rather than templated. */}
+      {/* Giant ghost step number */}
       <motion.span
         aria-hidden
         initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
         whileInView={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: "-15%" }}
         transition={{ duration: 1.3, ease: EASE }}
-        className={`pointer-events-none absolute -top-10 z-0 select-none font-serif text-[7.5rem] leading-none tracking-tight text-amber/[0.07] sm:-top-14 sm:text-[11rem] lg:-top-20 lg:text-[15rem] dark:text-amber/[0.08] ${
+        className={`pointer-events-none absolute -top-10 z-0 select-none font-serif text-[7.5rem] leading-none tracking-tight text-amber/[0.07] sm:-top-14 sm:text-[11rem] dark:text-amber/[0.08] ${
           isEven ? "right-0 sm:-right-2" : "left-0 sm:-left-2"
         }`}
       >
         {slide.index}
       </motion.span>
 
-      <div
-        className={`relative z-10 grid items-center gap-12 sm:gap-16 lg:grid-cols-2 lg:gap-20`}
-      >
-        {/* Text block */}
-        <div
-          className={`order-2 text-center lg:text-left ${
-            isEven ? "lg:order-1" : "lg:order-2"
-          }`}
+      <div className="relative z-10 flex flex-col items-center gap-10 text-center sm:gap-14">
+        {/* Step badge */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-15%" }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="font-serif text-sm italic text-amber sm:text-base"
         >
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 0.7, ease: EASE }}
-            className="font-serif text-sm italic text-amber sm:text-base"
-          >
-            Step {slide.index}
-            <span className="ml-2 text-ink-mute/60 not-italic">/ 03</span>
-          </motion.p>
+          Step {slide.index}
+          <span className="ml-2 text-ink-mute/60 not-italic">/ 03</span>
+        </motion.p>
 
+        {/* Title */}
+        <div className="flex flex-col items-center">
           <motion.h3
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: 28 }}
             whileInView={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 0.9, delay: 0.12, ease: EASE }}
-            className="mt-3 font-serif text-[2rem] leading-[1.04] tracking-tight text-ink sm:text-[2.6rem] lg:text-[3.2rem]"
+            transition={{ duration: 0.9, delay: 0.05, ease: EASE }}
+            className="font-serif text-[2rem] leading-[1.04] tracking-tight text-ink sm:text-[2.6rem]"
           >
             {slide.title}
           </motion.h3>
 
-          {/* Calligraphic amber stroke that draws beneath the title */}
+          {/* Calligraphic amber stroke */}
           <motion.span
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 1.1, delay: 0.5, ease: EASE }}
-            className={`mt-5 block h-px w-20 origin-left bg-gradient-to-r from-amber/80 to-amber/0 sm:w-28 ${
-              isEven ? "mx-auto lg:mx-0" : "mx-auto lg:ml-0 lg:mr-auto"
-            }`}
+            transition={{ duration: 1.1, delay: 0.45, ease: EASE }}
+            className="mt-5 block h-px w-20 origin-center bg-gradient-to-r from-amber/0 via-amber/80 to-amber/0 sm:w-28"
             aria-hidden
           />
-
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 0.8, delay: 0.35, ease: EASE }}
-            className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-dim sm:text-base lg:mx-0 lg:text-lg"
-          >
-            {slide.body}
-          </motion.p>
         </div>
 
-        {/* Visual */}
-        <div
-          className={`order-1 mx-auto w-full max-w-[420px] lg:max-w-[440px] ${
-            isEven ? "lg:order-2" : "lg:order-1"
-          }`}
+        {/* Body */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-15%" }}
+          transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
+          className="max-w-md text-[15px] leading-relaxed text-ink-dim sm:text-base"
         >
-          <div className="relative">
-            {/* Soft amber underglow. blur-xl (not blur-3xl) so mobile
-                GPUs don't choke. */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-6 -bottom-3 -z-10 h-12 rounded-full bg-amber/35 blur-xl"
-            />
+          {slide.body}
+        </motion.p>
 
-            <motion.div
-              initial={
-                reduce
-                  ? { opacity: 0 }
-                  : {
-                      opacity: 0,
-                      y: 30,
-                      scale: 0.96,
-                      rotateX: 6,
-                    }
-              }
-              whileInView={
-                reduce
-                  ? { opacity: 1 }
-                  : {
-                      opacity: 1,
-                      y: 0,
-                      scale: 1,
-                      rotateX: 0,
-                    }
-              }
-              viewport={{ once: true, margin: "-15%" }}
-              transition={{ duration: 1.05, ease: EASE }}
-              style={{ transformPerspective: 1200 }}
-            >
-              <Visual />
-            </motion.div>
-          </div>
+        {/* Visual */}
+        <div className="relative mx-auto w-full max-w-[400px]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-6 -bottom-3 -z-10 h-12 rounded-full bg-amber/35 blur-xl"
+          />
+          <motion.div
+            initial={
+              reduce
+                ? { opacity: 0 }
+                : { opacity: 0, y: 30, scale: 0.96, rotateX: 6 }
+            }
+            whileInView={
+              reduce
+                ? { opacity: 1 }
+                : { opacity: 1, y: 0, scale: 1, rotateX: 0 }
+            }
+            viewport={{ once: true, margin: "-15%" }}
+            transition={{ duration: 1.05, ease: EASE }}
+            style={{ transformPerspective: 1200 }}
+          >
+            <Visual />
+          </motion.div>
         </div>
       </div>
     </article>
   );
 }
 
-/* ---------- visuals ---------- */
+/* ---------- desktop: scroll-pinned horizontal ---------- */
+
+function DesktopHowItWorks() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const [active, setActive] = useState(0);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
+  // Three slides side by side. x goes 0vw → -200vw across the full
+  // scroll range. A small clamp at start/end so the row doesn't slide
+  // before/after the section is actually in the viewport.
+  const x = useTransform(
+    scrollYProgress,
+    [0, 0.05, 0.95, 1],
+    ["0vw", "0vw", "-200vw", "-200vw"],
+  );
+
+  // The "Keep scrolling ↓" cue fades out as the user nears the last slide.
+  const cueOpacity = useTransform(scrollYProgress, [0, 0.55, 0.8], [1, 1, 0]);
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    const next = v < 0.38 ? 0 : v < 0.71 ? 1 : 2;
+    if (next !== active) setActive(next);
+  });
+
+  return (
+    <section
+      id="how"
+      ref={sectionRef}
+      className="relative"
+      style={{ height: "300vh" }}
+    >
+      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
+        {/* Header */}
+        <div className="mx-auto w-full max-w-6xl px-6 pt-28">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <span className="text-xs uppercase tracking-[0.22em] text-amber">
+                The practice
+              </span>
+              <span className="block h-px w-12 bg-amber/30" />
+            </div>
+            <StepIndicator active={active} count={SLIDES.length} />
+          </div>
+        </div>
+
+        {/* Slides */}
+        <div className="flex flex-1 items-center">
+          <motion.div
+            style={
+              reduce
+                ? undefined
+                : {
+                    x,
+                    willChange: "transform",
+                  }
+            }
+            className="flex h-full items-center"
+          >
+            {SLIDES.map((slide, i) => (
+              <DesktopSlide
+                key={slide.index}
+                slide={slide}
+                index={i}
+                total={SLIDES.length}
+                scrollProgress={scrollYProgress}
+                reduce={!!reduce}
+              />
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Scroll-down cue */}
+        <motion.div
+          aria-hidden
+          style={reduce ? undefined : { opacity: cueOpacity }}
+          className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <ScrollCue />
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function ScrollCue() {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <span className="text-[10px] uppercase tracking-[0.28em] text-ink-mute">
+        Keep scrolling
+      </span>
+      <motion.div
+        animate={{ y: [0, 5, 0] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+        className="text-amber"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+      </motion.div>
+    </div>
+  );
+}
+
+function StepIndicator({ active, count }: { active: number; count: number }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="font-serif text-sm italic text-ink-mute">
+        <span className="text-amber">
+          {String(active + 1).padStart(2, "0")}
+        </span>
+        <span className="ml-1.5 text-ink-mute/60 not-italic">
+          / {String(count).padStart(2, "0")}
+        </span>
+      </span>
+      <div className="flex gap-1.5">
+        {Array.from({ length: count }).map((_, i) => (
+          <motion.span
+            key={i}
+            animate={{
+              width: i === active ? 24 : 6,
+              backgroundColor:
+                i === active
+                  ? "rgb(var(--amber))"
+                  : i < active
+                    ? "rgb(var(--amber) / 0.5)"
+                    : "rgb(var(--ink) / 0.15)",
+            }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="block h-[3px] rounded-full"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DesktopSlide({
+  slide,
+  index,
+  total,
+  scrollProgress,
+  reduce,
+}: {
+  slide: Slide;
+  index: number;
+  total: number;
+  scrollProgress: MotionValue<number>;
+  reduce: boolean;
+}) {
+  const { Visual } = slide;
+  const center = total === 1 ? 0.5 : index / (total - 1);
+  const window = 0.5;
+
+  const opacity = useTransform(
+    scrollProgress,
+    [center - window, center, center + window],
+    [0.55, 1, 0.55],
+  );
+  const scale = useTransform(
+    scrollProgress,
+    [center - window, center, center + window],
+    [0.94, 1, 0.94],
+  );
+  const y = useTransform(
+    scrollProgress,
+    [center - window, center, center + window],
+    [16, 0, 16],
+  );
+
+  return (
+    <div className="flex h-full w-screen shrink-0 items-center">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 items-center gap-20 px-6">
+        <motion.div
+          style={reduce ? undefined : { opacity, y }}
+          className="order-1"
+        >
+          <p className="mb-4 font-serif text-base italic text-amber">
+            Step {slide.index}
+            <span className="ml-2 text-ink-mute/60 not-italic">/ 03</span>
+          </p>
+          <h3 className="font-serif text-[3.5rem] leading-[1.04] tracking-tight text-ink">
+            {slide.title}
+          </h3>
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-dim">
+            {slide.body}
+          </p>
+        </motion.div>
+
+        <motion.div
+          style={reduce ? undefined : { opacity, scale }}
+          className="relative order-2 mx-auto flex h-[560px] w-full max-w-[440px] items-center justify-center"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-2 -inset-y-4 -z-10 rounded-[2rem] bg-amber/20 blur-3xl"
+          />
+          <Visual />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- visuals (shared by both layouts) ---------- */
 
 function SessionPickerVisual() {
   const options = [

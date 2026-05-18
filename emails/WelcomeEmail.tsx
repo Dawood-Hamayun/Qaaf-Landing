@@ -11,7 +11,7 @@ import {
 } from "@react-email/components";
 
 /**
- * Welcome email sent the moment someone signs up on qaaf.app.
+ * Welcome email sent the moment someone signs up on getqaaf.com.
  *
  * Tone: quiet, warm, no marketing voice. Reads like a personal note.
  * Visual: cream background, serif headline in deep ink, single amber
@@ -27,8 +27,8 @@ export function WelcomeEmail({ firstWord = "Qaaf" }: { firstWord?: string }) {
     <Html>
       <Head />
       <Preview>
-        JazakAllah for joining. We&apos;ll write one quiet message the day{" "}
-        {firstWord} opens.
+        JazakAllah for joining. We&apos;ll write one quiet message the day
+        {" "}{firstWord} opens.
       </Preview>
       <Body style={body}>
         <Container style={container}>
@@ -84,8 +84,8 @@ export function WelcomeEmail({ firstWord = "Qaaf" }: { firstWord?: string }) {
           <Section>
             <Text style={footerText}>
               You&apos;re receiving this because you signed up at{" "}
-              <Link href="https://qaaf.app" style={footerLink}>
-                qaaf.app
+              <Link href="https://getqaaf.com" style={footerLink}>
+                getqaaf.com
               </Link>
               . If this wasn&apos;t you, just ignore. We won&apos;t write again
               until the app is live.
