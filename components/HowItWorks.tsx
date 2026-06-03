@@ -526,10 +526,16 @@ function AyahVisual() {
         className="relative w-full overflow-hidden rounded-2xl shadow-phone"
         style={{ aspectRatio: "1344/824" }}
       >
+        {/* `priority` preloads the image at first paint via
+            <link rel="preload">. Without it, the lazy-loader waits
+            until the slide translates into view — too late for the
+            desktop horizontal scroll where slides 2 and 3 sit at
+            x: 100vw / 200vw on page load. */}
         <Image
           src="/mockups/word-ayah-light.jpeg"
           alt="A word in the verse where it lives"
           fill
+          priority
           sizes="(min-width: 1024px) 440px, (min-width: 640px) 400px, 90vw"
           className="object-cover dark:hidden"
         />
@@ -537,6 +543,7 @@ function AyahVisual() {
           src="/mockups/word-ayah-dark.jpeg"
           alt="A word in the verse where it lives"
           fill
+          priority
           sizes="(min-width: 1024px) 440px, (min-width: 640px) 400px, 90vw"
           className="hidden object-cover dark:block"
         />
@@ -556,6 +563,7 @@ function ResumeVisual() {
           src="/mockups/resume-card-light.jpeg"
           alt="Right where you left off"
           fill
+          priority
           sizes="(min-width: 1024px) 440px, (min-width: 640px) 400px, 90vw"
           className="object-cover dark:hidden"
         />
@@ -563,6 +571,7 @@ function ResumeVisual() {
           src="/mockups/resume-card-dark.jpeg"
           alt="Right where you left off"
           fill
+          priority
           sizes="(min-width: 1024px) 440px, (min-width: 640px) 400px, 90vw"
           className="hidden object-cover dark:block"
         />

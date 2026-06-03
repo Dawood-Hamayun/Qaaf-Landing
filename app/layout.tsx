@@ -23,10 +23,42 @@ const amiri = Amiri({
   display: "swap",
 });
 
+// Absolute base URL used to resolve relative paths in OG/Twitter meta.
+// Social platforms (LinkedIn, Twitter, iMessage, Slack) need fully
+// qualified image URLs, so Next.js prefixes them with this.
+const SITE_URL = "https://getqaaf.com";
+const SITE_NAME = "Qaaf";
+const SITE_TITLE = "Qaaf · Learn 500 words of the Quran";
+const SITE_DESCRIPTION =
+  "Five hundred words. Eighty percent of the Quran. Meet the Book, one word at a time. Gently, daily, with you the whole way.";
+
 export const metadata: Metadata = {
-  title: "Qaaf · Learn 500 words of the Quran",
-  description:
-    "Five hundred words. Eighty percent of the Quran. Meet the Book, one word at a time. Gently, daily, with you the whole way.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/getqaaf-landing.png",
+        // Standard OG card size. If your image is a different size,
+        // update these so previews don't crop awkwardly.
+        width: 1200,
+        height: 630,
+        alt: "Qaaf · Learn 500 words of the Quran",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/getqaaf-landing.png"],
+  },
 };
 
 export default function RootLayout({
